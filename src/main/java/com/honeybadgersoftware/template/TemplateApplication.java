@@ -1,13 +1,13 @@
-package com.honeybadgersoftware.cyproductservice;
+package com.honeybadgersoftware.template;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CyProductServiceApplication {
+public class TemplateApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(CyProductServiceApplication.class, args);
+		SpringApplication.run(TemplateApplication.class, args);
 	}
 
 }
