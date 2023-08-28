@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.net.URI;
-
 @Data
 @Builder
 @AllArgsConstructor
@@ -16,5 +14,5 @@ public class ProductDto {
     private String name;
     private String manufacturer;
     private String description;
-    private URI imageUrl;
+    private String imageUrl;
 }

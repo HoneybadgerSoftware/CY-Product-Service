@@ -43,11 +43,19 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Optional<ProductDto> updateProduct(Long id, ProductDto productDto) {
+        Optional<ProductEntity> product = productRepository.findById(id);
+        if (product.isPresent()) {
+            productRepository.save(productMapper.toEntity(productDto));
+        }
         return Optional.empty();
     }
 
     @Override
     public int deleteById(Long id) {
+        if (productRepository.existsById(id)) {
+            productRepository.deleteById(id);
+            return 1;
+        }
         return 0;
     }
 }
