@@ -29,6 +29,11 @@ databaseChangeLog:
                   constraints:
                     nullable: true
               - column:
+                  name: average_price
+                  type: Numeric(10,2)
+                  constraints:
+                    nullable: true
+              - column:
                   name: image_url
                   type: VARCHAR(255)
                   constraints:

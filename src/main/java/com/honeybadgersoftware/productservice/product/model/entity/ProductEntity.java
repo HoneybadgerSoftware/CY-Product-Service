@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @Entity
 @Builder
@@ -20,13 +22,19 @@ public class ProductEntity {
     @SequenceGenerator(name = "product_seq_gen", sequenceName = "product_sequence", allocationSize = 100)
     @Column(name = "id", nullable = false)
     private Long id;
+
+    @NotNull
     @Column(name = "name", nullable = false)
-    @NotNull
     private String name;
+
     @NotNull
+    @Column(name = "manufacturer", nullable = false)
     private String manufacturer;
     @Size(max = 5000)
+    @Column(name = "description")
     private String description;
+    @Column(name = "average_price")
+    private BigDecimal averagePrice;
     private String imageUrl;
 
 }

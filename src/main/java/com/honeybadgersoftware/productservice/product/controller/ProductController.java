@@ -1,9 +1,10 @@
 package com.honeybadgersoftware.productservice.product.controller;
 
+import com.honeybadgersoftware.productservice.product.facade.ProductFacade;
+import com.honeybadgersoftware.productservice.product.model.dto.SynchronizeProductsRequest;
 import com.honeybadgersoftware.productservice.product.model.dto.ProductDto;
-import com.honeybadgersoftware.productservice.product.service.ProductService;
+import com.honeybadgersoftware.productservice.utils.pagination.ProductPage;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -17,24 +18,24 @@ import java.util.Optional;
 @RequestMapping("/product")
 public class ProductController {
 
-    private final ProductService productService;
+    private final ProductFacade productFacade;
 
     @GetMapping("/{id}")
     ResponseEntity<ProductDto> getProduct(@PathVariable Long id) {
-        Optional<ProductDto> product = productService.findById(id);
+        Optional<ProductDto> product = productFacade.findById(id);
         return product.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping
-    ResponseEntity<Page<ProductDto>> getProducts(
+    ResponseEntity<ProductPage<ProductDto>> getProducts(
             @PageableDefault(size = 50, page = 0) Pageable pageable) {
-        return ResponseEntity.ok(productService.findAll(pageable));
+        return ResponseEntity.ok(productFacade.getProducts(pageable));
     }
 
     @PostMapping
     ResponseEntity<ProductDto> saveProduct(@RequestBody ProductDto productDto) {
         try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(productService.saveProduct(productDto));
+            return ResponseEntity.status(HttpStatus.CREATED).body(productFacade.saveProduct(productDto));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
@@ -42,15 +43,22 @@ public class ProductController {
 
     @PutMapping("/{id}")
     ResponseEntity<ProductDto> updateProduct(@PathVariable Long id, @RequestBody ProductDto productDto) {
-        return productService.updateProduct(id, productDto).isPresent() ?
+        return productFacade.updateProduct(id, productDto).isPresent() ?
                 ResponseEntity.ok(productDto) : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
     ResponseEntity<String> deleteProduct(@PathVariable Long id) {
-        return productService.deleteById(id) == 1 ?
+        return productFacade.deleteProduct(id) == 1 ?
                 ResponseEntity.status(HttpStatus.OK).body("Succesfully deleted entity with id: " + id)
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Entity not found");
+    }
+
+
+    //TODO
+    @PostMapping("/synchronize")
+    ResponseEntity<String> synchronizeProducts(@RequestBody SynchronizeProductsRequest synchronizeProductsRequest) {
+        return null;
     }
 
 

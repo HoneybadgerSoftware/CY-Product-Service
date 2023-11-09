@@ -1,19 +1,24 @@
 package com.honeybadgersoftware.productservice.product.service.impl;
 
 import com.honeybadgersoftware.productservice.product.model.dto.ProductDto;
+import com.honeybadgersoftware.productservice.product.model.dto.ProductExistenceResponse;
+import com.honeybadgersoftware.productservice.product.model.dto.SimplifiedProductData;
 import com.honeybadgersoftware.productservice.product.model.entity.ProductEntity;
 import com.honeybadgersoftware.productservice.product.repository.ProductRepository;
 import com.honeybadgersoftware.productservice.product.service.ProductService;
 import com.honeybadgersoftware.productservice.utils.mapper.ProductMapper;
+import com.honeybadgersoftware.productservice.utils.pagination.ProductPage;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
 
@@ -27,12 +32,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductDto> findAll(Pageable pageable) {
-        Page<ProductEntity> products = productRepository.findAll(pageable);
-        return new PageImpl<>(
+    public ProductPage<ProductDto> findAll(Pageable pageable) {
+        org.springframework.data.domain.Page<ProductEntity> products = productRepository.findAll(pageable);
+        return  new ProductPage<>(
                 products.stream().map(productMapper::toDto).toList(),
-                products.getPageable(),
-                products.getTotalElements());
+                products.getPageable().getPageSize(),
+                products.getPageable().getPageNumber(),
+                products.getTotalPages()
+
+        );
+
     }
 
     @Override
@@ -46,6 +55,7 @@ public class ProductServiceImpl implements ProductService {
         Optional<ProductEntity> product = productRepository.findById(id);
         if (product.isPresent()) {
             productRepository.save(productMapper.toEntity(productDto));
+            return Optional.of(productDto);
         }
         return Optional.empty();
     }
@@ -57,5 +67,29 @@ public class ProductServiceImpl implements ProductService {
             return 1;
         }
         return 0;
+    }
+
+    @Override
+    public ProductExistenceResponse checkProductsInDb(List<SimplifiedProductData> simplifiedProductData) {
+
+        ArrayList<Long> existingProductsIds = new ArrayList<>();
+        ArrayList<Long> newProductsIds = new ArrayList<>();
+
+        simplifiedProductData.forEach(productData -> {
+                    Optional<Long> productId = productRepository.findIdByNameAndManufacturer(productData.getProductName(), productData.getManufacturer());
+                    if (productId.isEmpty()) {
+                        newProductsIds.add(productRepository.save(ProductEntity.builder()
+                                        .name(productData.getProductName())
+                                        .manufacturer(productData.getManufacturer())
+                                        .averagePrice(productData.getPrice())
+                                        .build())
+                                .getId());
+                        return;
+                    }
+                    existingProductsIds.add(productId.get());
+                }
+        );
+
+        return new ProductExistenceResponse(existingProductsIds, newProductsIds);
     }
 }
