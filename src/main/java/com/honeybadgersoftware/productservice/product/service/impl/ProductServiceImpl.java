@@ -1,6 +1,7 @@
 package com.honeybadgersoftware.productservice.product.service.impl;
 
 import com.honeybadgersoftware.productservice.product.model.dto.ProductDto;
+import com.honeybadgersoftware.productservice.product.model.dto.ProductExistenceData;
 import com.honeybadgersoftware.productservice.product.model.dto.ProductExistenceResponse;
 import com.honeybadgersoftware.productservice.product.model.dto.SimplifiedProductData;
 import com.honeybadgersoftware.productservice.product.model.entity.ProductEntity;
@@ -34,7 +35,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductPage<ProductDto> findAll(Pageable pageable) {
         org.springframework.data.domain.Page<ProductEntity> products = productRepository.findAll(pageable);
-        return  new ProductPage<>(
+        return new ProductPage<>(
                 products.stream().map(productMapper::toDto).toList(),
                 products.getPageable().getPageSize(),
                 products.getPageable().getPageNumber(),
@@ -72,24 +73,34 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductExistenceResponse checkProductsInDb(List<SimplifiedProductData> simplifiedProductData) {
 
-        ArrayList<Long> existingProductsIds = new ArrayList<>();
-        ArrayList<Long> newProductsIds = new ArrayList<>();
+        ArrayList<ProductExistenceData> productsExistenceData = new ArrayList<>();
 
         simplifiedProductData.forEach(productData -> {
                     Optional<Long> productId = productRepository.findIdByNameAndManufacturer(productData.getProductName(), productData.getManufacturer());
                     if (productId.isEmpty()) {
-                        newProductsIds.add(productRepository.save(ProductEntity.builder()
-                                        .name(productData.getProductName())
-                                        .manufacturer(productData.getManufacturer())
-                                        .averagePrice(productData.getPrice())
-                                        .build())
-                                .getId());
+
+                        ProductEntity newProduct = productRepository.save(ProductEntity.builder()
+                                .name(productData.getProductName())
+                                .manufacturer(productData.getManufacturer())
+                                .build());
+
+                        productsExistenceData.add(ProductExistenceData.builder()
+                                .id(newProduct.getId())
+                                .existedInDb(false)
+                                .name(newProduct.getName())
+                                .manufacturer(newProduct.getManufacturer())
+                                .build());
                         return;
                     }
-                    existingProductsIds.add(productId.get());
+                    productsExistenceData.add(ProductExistenceData.builder()
+                            .id(productId.get())
+                            .existedInDb(true)
+                            .name(productData.getProductName())
+                            .manufacturer(productData.getManufacturer())
+                            .build());
                 }
         );
 
-        return new ProductExistenceResponse(existingProductsIds, newProductsIds);
+        return new ProductExistenceResponse(productsExistenceData);
     }
 }

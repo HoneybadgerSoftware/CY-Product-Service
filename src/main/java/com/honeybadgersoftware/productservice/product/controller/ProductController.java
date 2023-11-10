@@ -1,6 +1,7 @@
 package com.honeybadgersoftware.productservice.product.controller;
 
 import com.honeybadgersoftware.productservice.product.facade.ProductFacade;
+import com.honeybadgersoftware.productservice.product.model.dto.ProductExistenceResponse;
 import com.honeybadgersoftware.productservice.product.model.dto.SynchronizeProductsRequest;
 import com.honeybadgersoftware.productservice.product.model.dto.ProductDto;
 import com.honeybadgersoftware.productservice.utils.pagination.ProductPage;
@@ -56,10 +57,11 @@ public class ProductController {
 
 
     //TODO
-    @PostMapping("/synchronize")
-    ResponseEntity<String> synchronizeProducts(@RequestBody SynchronizeProductsRequest synchronizeProductsRequest) {
-        return null;
+    @PostMapping("/synchronize/check")
+    ResponseEntity<ProductExistenceResponse> preSynchronizationCheck(@RequestBody SynchronizeProductsRequest synchronizeProductsRequest) {
+        return ResponseEntity.ok(productFacade.preSynchronizationCheck(synchronizeProductsRequest));
     }
+
 
 
 }

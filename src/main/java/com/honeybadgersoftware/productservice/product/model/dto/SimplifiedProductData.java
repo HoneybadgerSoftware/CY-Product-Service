@@ -9,5 +9,4 @@ public class SimplifiedProductData {
 
     private String productName;
     private String manufacturer;
-    private BigDecimal price;
 }

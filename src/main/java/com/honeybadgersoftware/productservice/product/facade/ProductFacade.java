@@ -38,9 +38,8 @@ public class ProductFacade {
         return productService.deleteById(id);
     }
 
-    public void synchronizeProducts(SynchronizeProductsRequest synchronizeProductsRequest) {
-        ProductExistenceResponse productExistenceResponse = productService.checkProductsInDb(synchronizeProductsRequest.getData());
-
+    public ProductExistenceResponse preSynchronizationCheck(SynchronizeProductsRequest synchronizeProductsRequest) {
+        return productService.checkProductsInDb(synchronizeProductsRequest.getData());
     }
 
 }
