@@ -1,5 +1,6 @@
 package com.honeybadgersoftware.productservice.product.facade;
 
+import com.honeybadgersoftware.productservice.product.model.NewProductUpdateData;
 import com.honeybadgersoftware.productservice.product.model.dto.ProductDto;
 import com.honeybadgersoftware.productservice.product.model.dto.ProductExistenceResponse;
 import com.honeybadgersoftware.productservice.product.model.dto.SynchronizeProductsRequest;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -42,4 +44,7 @@ public class ProductFacade {
         return productService.checkProductsInDb(synchronizeProductsRequest.getData());
     }
 
+    public void updateNewProducts(List<NewProductUpdateData> data) {
+        productService.updateNewProducts(data);
+    }
 }

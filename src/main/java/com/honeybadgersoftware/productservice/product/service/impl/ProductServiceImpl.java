@@ -1,5 +1,6 @@
 package com.honeybadgersoftware.productservice.product.service.impl;
 
+import com.honeybadgersoftware.productservice.product.model.NewProductUpdateData;
 import com.honeybadgersoftware.productservice.product.model.dto.ProductDto;
 import com.honeybadgersoftware.productservice.product.model.dto.ProductExistenceData;
 import com.honeybadgersoftware.productservice.product.model.dto.ProductExistenceResponse;
@@ -17,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -102,5 +105,35 @@ public class ProductServiceImpl implements ProductService {
         );
 
         return new ProductExistenceResponse(productsExistenceData);
+    }
+
+    @Override
+    @Transactional
+    public void updateNewProducts(List<NewProductUpdateData> productData) {
+        List<ProductEntity> productEntities = productRepository.findAllById(getProductIds(productData));
+
+        List<ProductEntity> updatedEntities = productEntities.stream()
+                .flatMap(productEntity -> productData.stream()
+                        .filter(newData -> newData.getId().equals(productEntity.getId()))
+                        .map(newData -> map(productEntity, newData))
+                ).collect(Collectors.toList());
+
+        productRepository.saveAll(updatedEntities);
+    }
+
+
+    private List<Long> getProductIds(List<NewProductUpdateData> productData) {
+        return productData.stream().map(NewProductUpdateData::getId).collect(Collectors.toList());
+    }
+
+    private ProductEntity map(ProductEntity productEntity, NewProductUpdateData newProductUpdateData) {
+        return ProductEntity.builder()
+                .id(productEntity.getId())
+                .name(productEntity.getName())
+                .manufacturer(productEntity.getManufacturer())
+                .averagePrice(newProductUpdateData.getAveragePrice())
+                .description(newProductUpdateData.getDescription())
+                .imageUrl(newProductUpdateData.getUrl())
+                .build();
     }
 }

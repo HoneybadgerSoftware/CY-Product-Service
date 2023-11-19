@@ -1,6 +1,7 @@
 package com.honeybadgersoftware.productservice.product.controller;
 
 import com.honeybadgersoftware.productservice.product.facade.ProductFacade;
+import com.honeybadgersoftware.productservice.product.model.UpdateNewProductsRequest;
 import com.honeybadgersoftware.productservice.product.model.dto.ProductExistenceResponse;
 import com.honeybadgersoftware.productservice.product.model.dto.SynchronizeProductsRequest;
 import com.honeybadgersoftware.productservice.product.model.dto.ProductDto;
@@ -55,11 +56,17 @@ public class ProductController {
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Entity not found");
     }
 
-
-    //TODO
     @PostMapping("/synchronize/check")
     ResponseEntity<ProductExistenceResponse> preSynchronizationCheck(@RequestBody SynchronizeProductsRequest synchronizeProductsRequest) {
         return ResponseEntity.ok(productFacade.preSynchronizationCheck(synchronizeProductsRequest));
+    }
+
+    @PutMapping("/synchronize/newProducts")
+    ResponseEntity<Void> updateNewProducts(
+            @RequestBody UpdateNewProductsRequest checkProductsExistenceRequest){
+
+        productFacade.updateNewProducts(checkProductsExistenceRequest.getData());
+        return ResponseEntity.ok().build();
     }
 
 
