@@ -1,13 +1,19 @@
 package com.honeybadgersoftware.productservice.product.service.impl;
 
+import com.honeybadgersoftware.productservice.product.factory.context.FactoryContext;
+import com.honeybadgersoftware.productservice.product.model.productupdate.NewProductUpdateData;
+import com.honeybadgersoftware.productservice.product.model.productupdate.ProductAveragePriceData;
 import com.honeybadgersoftware.productservice.product.model.dto.ProductDto;
-import com.honeybadgersoftware.productservice.product.model.dto.ProductExistenceResponse;
-import com.honeybadgersoftware.productservice.product.model.dto.SimplifiedProductData;
+import com.honeybadgersoftware.productservice.product.model.productexistence.ProductExistenceData;
+import com.honeybadgersoftware.productservice.product.model.productexistence.ProductExistenceResponse;
+import com.honeybadgersoftware.productservice.product.model.synchronize.SimplifiedProductData;
 import com.honeybadgersoftware.productservice.product.model.entity.ProductEntity;
 import com.honeybadgersoftware.productservice.product.repository.ProductRepository;
 import com.honeybadgersoftware.productservice.product.service.ProductService;
+import com.honeybadgersoftware.productservice.utils.factory.ManyToOneFactory;
 import com.honeybadgersoftware.productservice.utils.mapper.ProductMapper;
 import com.honeybadgersoftware.productservice.utils.pagination.ProductPage;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -24,6 +31,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
+    private final FactoryContext twoToFactoryContext;
 
     @Override
     public Optional<ProductDto> findById(Long id) {
@@ -34,7 +42,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductPage<ProductDto> findAll(Pageable pageable) {
         org.springframework.data.domain.Page<ProductEntity> products = productRepository.findAll(pageable);
-        return  new ProductPage<>(
+        return new ProductPage<>(
                 products.stream().map(productMapper::toDto).toList(),
                 products.getPageable().getPageSize(),
                 products.getPageable().getPageNumber(),
@@ -72,24 +80,80 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductExistenceResponse checkProductsInDb(List<SimplifiedProductData> simplifiedProductData) {
 
-        ArrayList<Long> existingProductsIds = new ArrayList<>();
-        ArrayList<Long> newProductsIds = new ArrayList<>();
+        ArrayList<ProductExistenceData> productsExistenceData = new ArrayList<>();
 
         simplifiedProductData.forEach(productData -> {
-                    Optional<Long> productId = productRepository.findIdByNameAndManufacturer(productData.getProductName(), productData.getManufacturer());
+                    Optional<Long> productId = productRepository.findIdByNameAndManufacturer(
+                            productData.getProductName(),
+                            productData.getManufacturer());
                     if (productId.isEmpty()) {
-                        newProductsIds.add(productRepository.save(ProductEntity.builder()
-                                        .name(productData.getProductName())
-                                        .manufacturer(productData.getManufacturer())
-                                        .averagePrice(productData.getPrice())
-                                        .build())
-                                .getId());
+
+                        ProductEntity newProduct = productRepository.save(ProductEntity.builder()
+                                .name(productData.getProductName())
+                                .manufacturer(productData.getManufacturer())
+                                .build());
+
+                        productsExistenceData.add(buildNewProductExistenceData(newProduct));
                         return;
                     }
-                    existingProductsIds.add(productId.get());
+                    productsExistenceData.add(buildExistingProductExistenceData(productId.get(), productData));
                 }
         );
+        return new ProductExistenceResponse(productsExistenceData);
+    }
 
-        return new ProductExistenceResponse(existingProductsIds, newProductsIds);
+    @Override
+    @Transactional
+    public void updateNewProducts(List<NewProductUpdateData> productData) {
+        List<ProductEntity> productEntities = productRepository.findAllById(getProductIds(productData));
+        ManyToOneFactory<ProductEntity, NewProductUpdateData> factory =
+                twoToFactoryContext.getFactory(NewProductUpdateData.class);
+
+        List<ProductEntity> updatedEntities = productEntities.stream()
+                .flatMap(productEntity -> productData.stream()
+                        .filter(newData -> newData.getId().equals(productEntity.getId()))
+                        .map(newData -> factory.map(productEntity, newData))
+                ).collect(Collectors.toList());
+
+        productRepository.saveAll(updatedEntities);
+    }
+
+    @Override
+    public void updateProductsAveragePrice(List<ProductAveragePriceData> data) {
+        ManyToOneFactory<ProductEntity, ProductAveragePriceData> factory =
+                twoToFactoryContext.getFactory(ProductAveragePriceData.class);
+
+        data.forEach(productAveragePriceData -> {
+            Optional<ProductEntity> productEntity = productRepository.findById(productAveragePriceData.getProductId());
+            if (productEntity.isEmpty()) {
+                throw new EntityNotFoundException("Did not found entity with id:" + productAveragePriceData.getProductId());
+            }
+            ProductEntity product = productEntity.get();
+            productRepository.save(factory.map(product, productAveragePriceData));
+        });
+    }
+
+    private List<Long> getProductIds(List<NewProductUpdateData> productData) {
+        return productData.stream().map(NewProductUpdateData::getId).collect(Collectors.toList());
+    }
+
+    private ProductExistenceData buildNewProductExistenceData(ProductEntity newProduct) {
+        return ProductExistenceData.builder()
+                .id(newProduct.getId())
+                .existedInDb(false)
+                .name(newProduct.getName())
+                .manufacturer(newProduct.getManufacturer())
+                .build();
+    }
+
+    private ProductExistenceData buildExistingProductExistenceData(
+            Long id,
+            SimplifiedProductData productData) {
+        return ProductExistenceData.builder()
+                .id(id)
+                .existedInDb(true)
+                .name(productData.getProductName())
+                .manufacturer(productData.getManufacturer())
+                .build();
     }
 }

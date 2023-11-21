@@ -1,14 +1,17 @@
 package com.honeybadgersoftware.productservice.product.facade;
 
+import com.honeybadgersoftware.productservice.product.model.productupdate.NewProductUpdateData;
+import com.honeybadgersoftware.productservice.product.model.productupdate.ProductAveragePriceData;
 import com.honeybadgersoftware.productservice.product.model.dto.ProductDto;
-import com.honeybadgersoftware.productservice.product.model.dto.ProductExistenceResponse;
-import com.honeybadgersoftware.productservice.product.model.dto.SynchronizeProductsRequest;
+import com.honeybadgersoftware.productservice.product.model.productexistence.ProductExistenceResponse;
+import com.honeybadgersoftware.productservice.product.model.synchronize.SynchronizeProductsRequest;
 import com.honeybadgersoftware.productservice.product.service.ProductService;
 import com.honeybadgersoftware.productservice.utils.pagination.ProductPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -38,9 +41,15 @@ public class ProductFacade {
         return productService.deleteById(id);
     }
 
-    public void synchronizeProducts(SynchronizeProductsRequest synchronizeProductsRequest) {
-        ProductExistenceResponse productExistenceResponse = productService.checkProductsInDb(synchronizeProductsRequest.getData());
-
+    public ProductExistenceResponse preSynchronizationCheck(SynchronizeProductsRequest synchronizeProductsRequest) {
+        return productService.checkProductsInDb(synchronizeProductsRequest.getData());
     }
 
+    public void updateNewProducts(List<NewProductUpdateData> data) {
+        productService.updateNewProducts(data);
+    }
+
+    public void updateProductsAveragePrice(List<ProductAveragePriceData> data) {
+        productService.updateProductsAveragePrice(data);
+    }
 }

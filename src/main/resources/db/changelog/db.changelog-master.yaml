@@ -2,5 +2,5 @@ databaseChangeLog:
   - include:
       id: 1
       author: jakub.kolacz
-      file: changeset/V_0_0_1_create_product_table.yml
+      file: changeset/0001_create_product_table.yml
       relativeToChangelogFile: true
