@@ -1,6 +1,8 @@
 package com.honeybadgersoftware.productservice.product.service.impl;
 
+import com.honeybadgersoftware.productservice.product.factory.context.FactoryContext;
 import com.honeybadgersoftware.productservice.product.model.NewProductUpdateData;
+import com.honeybadgersoftware.productservice.product.model.ProductAveragePriceData;
 import com.honeybadgersoftware.productservice.product.model.dto.ProductDto;
 import com.honeybadgersoftware.productservice.product.model.dto.ProductExistenceData;
 import com.honeybadgersoftware.productservice.product.model.dto.ProductExistenceResponse;
@@ -8,8 +10,10 @@ import com.honeybadgersoftware.productservice.product.model.dto.SimplifiedProduc
 import com.honeybadgersoftware.productservice.product.model.entity.ProductEntity;
 import com.honeybadgersoftware.productservice.product.repository.ProductRepository;
 import com.honeybadgersoftware.productservice.product.service.ProductService;
+import com.honeybadgersoftware.productservice.utils.factory.ManyToOneFactory;
 import com.honeybadgersoftware.productservice.utils.mapper.ProductMapper;
 import com.honeybadgersoftware.productservice.utils.pagination.ProductPage;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -28,6 +31,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
+    private final FactoryContext twoToFactoryContext;
 
     @Override
     public Optional<ProductDto> findById(Long id) {
@@ -79,7 +83,9 @@ public class ProductServiceImpl implements ProductService {
         ArrayList<ProductExistenceData> productsExistenceData = new ArrayList<>();
 
         simplifiedProductData.forEach(productData -> {
-                    Optional<Long> productId = productRepository.findIdByNameAndManufacturer(productData.getProductName(), productData.getManufacturer());
+                    Optional<Long> productId = productRepository.findIdByNameAndManufacturer(
+                            productData.getProductName(),
+                            productData.getManufacturer());
                     if (productId.isEmpty()) {
 
                         ProductEntity newProduct = productRepository.save(ProductEntity.builder()
@@ -87,23 +93,12 @@ public class ProductServiceImpl implements ProductService {
                                 .manufacturer(productData.getManufacturer())
                                 .build());
 
-                        productsExistenceData.add(ProductExistenceData.builder()
-                                .id(newProduct.getId())
-                                .existedInDb(false)
-                                .name(newProduct.getName())
-                                .manufacturer(newProduct.getManufacturer())
-                                .build());
+                        productsExistenceData.add(buildNewProductExistenceData(newProduct));
                         return;
                     }
-                    productsExistenceData.add(ProductExistenceData.builder()
-                            .id(productId.get())
-                            .existedInDb(true)
-                            .name(productData.getProductName())
-                            .manufacturer(productData.getManufacturer())
-                            .build());
+                    productsExistenceData.add(buildExistingProductExistenceData(productId.get(), productData));
                 }
         );
-
         return new ProductExistenceResponse(productsExistenceData);
     }
 
@@ -111,29 +106,54 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public void updateNewProducts(List<NewProductUpdateData> productData) {
         List<ProductEntity> productEntities = productRepository.findAllById(getProductIds(productData));
+        ManyToOneFactory<ProductEntity, NewProductUpdateData> factory =
+                twoToFactoryContext.getFactory(NewProductUpdateData.class);
 
         List<ProductEntity> updatedEntities = productEntities.stream()
                 .flatMap(productEntity -> productData.stream()
                         .filter(newData -> newData.getId().equals(productEntity.getId()))
-                        .map(newData -> map(productEntity, newData))
+                        .map(newData -> factory.map(productEntity, newData))
                 ).collect(Collectors.toList());
 
         productRepository.saveAll(updatedEntities);
     }
 
+    @Override
+    public void updateProductsAveragePrice(List<ProductAveragePriceData> data) {
+        ManyToOneFactory<ProductEntity, ProductAveragePriceData> factory =
+                twoToFactoryContext.getFactory(ProductAveragePriceData.class);
+
+        data.forEach(productAveragePriceData -> {
+            Optional<ProductEntity> productEntity = productRepository.findById(productAveragePriceData.getProductId());
+            if (productEntity.isEmpty()) {
+                throw new EntityNotFoundException("Did not found entity with id:" + productAveragePriceData.getProductId());
+            }
+            ProductEntity product = productEntity.get();
+            productRepository.save(factory.map(product, productAveragePriceData));
+        });
+    }
 
     private List<Long> getProductIds(List<NewProductUpdateData> productData) {
         return productData.stream().map(NewProductUpdateData::getId).collect(Collectors.toList());
     }
 
-    private ProductEntity map(ProductEntity productEntity, NewProductUpdateData newProductUpdateData) {
-        return ProductEntity.builder()
-                .id(productEntity.getId())
-                .name(productEntity.getName())
-                .manufacturer(productEntity.getManufacturer())
-                .averagePrice(newProductUpdateData.getAveragePrice())
-                .description(newProductUpdateData.getDescription())
-                .imageUrl(newProductUpdateData.getUrl())
+    private ProductExistenceData buildNewProductExistenceData(ProductEntity newProduct) {
+        return ProductExistenceData.builder()
+                .id(newProduct.getId())
+                .existedInDb(false)
+                .name(newProduct.getName())
+                .manufacturer(newProduct.getManufacturer())
+                .build();
+    }
+
+    private ProductExistenceData buildExistingProductExistenceData(
+            Long id,
+            SimplifiedProductData productData) {
+        return ProductExistenceData.builder()
+                .id(id)
+                .existedInDb(true)
+                .name(productData.getProductName())
+                .manufacturer(productData.getManufacturer())
                 .build();
     }
 }

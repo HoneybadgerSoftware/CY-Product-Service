@@ -1,6 +1,7 @@
 package com.honeybadgersoftware.productservice.product.service;
 
 import com.honeybadgersoftware.productservice.product.model.NewProductUpdateData;
+import com.honeybadgersoftware.productservice.product.model.ProductAveragePriceData;
 import com.honeybadgersoftware.productservice.product.model.dto.ProductDto;
 import com.honeybadgersoftware.productservice.product.model.dto.ProductExistenceResponse;
 import com.honeybadgersoftware.productservice.product.model.dto.SimplifiedProductData;
@@ -25,4 +26,6 @@ public interface ProductService {
     ProductExistenceResponse checkProductsInDb(List<SimplifiedProductData> simplifiedProductData);
 
     void updateNewProducts(List<NewProductUpdateData> productData);
+
+    void updateProductsAveragePrice(List<ProductAveragePriceData> data);
 }
