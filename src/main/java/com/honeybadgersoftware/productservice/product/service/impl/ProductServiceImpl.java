@@ -1,12 +1,12 @@
 package com.honeybadgersoftware.productservice.product.service.impl;
 
 import com.honeybadgersoftware.productservice.product.factory.context.FactoryContext;
-import com.honeybadgersoftware.productservice.product.model.NewProductUpdateData;
-import com.honeybadgersoftware.productservice.product.model.ProductAveragePriceData;
+import com.honeybadgersoftware.productservice.product.model.productupdate.NewProductUpdateData;
+import com.honeybadgersoftware.productservice.product.model.productupdate.ProductAveragePriceData;
 import com.honeybadgersoftware.productservice.product.model.dto.ProductDto;
-import com.honeybadgersoftware.productservice.product.model.dto.ProductExistenceData;
-import com.honeybadgersoftware.productservice.product.model.dto.ProductExistenceResponse;
-import com.honeybadgersoftware.productservice.product.model.dto.SimplifiedProductData;
+import com.honeybadgersoftware.productservice.product.model.productexistence.ProductExistenceData;
+import com.honeybadgersoftware.productservice.product.model.productexistence.ProductExistenceResponse;
+import com.honeybadgersoftware.productservice.product.model.synchronize.SimplifiedProductData;
 import com.honeybadgersoftware.productservice.product.model.entity.ProductEntity;
 import com.honeybadgersoftware.productservice.product.repository.ProductRepository;
 import com.honeybadgersoftware.productservice.product.service.ProductService;

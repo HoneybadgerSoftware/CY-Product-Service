@@ -1,10 +1,10 @@
 package com.honeybadgersoftware.productservice.product.facade;
 
-import com.honeybadgersoftware.productservice.product.model.NewProductUpdateData;
-import com.honeybadgersoftware.productservice.product.model.ProductAveragePriceData;
+import com.honeybadgersoftware.productservice.product.model.productupdate.NewProductUpdateData;
+import com.honeybadgersoftware.productservice.product.model.productupdate.ProductAveragePriceData;
 import com.honeybadgersoftware.productservice.product.model.dto.ProductDto;
-import com.honeybadgersoftware.productservice.product.model.dto.ProductExistenceResponse;
-import com.honeybadgersoftware.productservice.product.model.dto.SynchronizeProductsRequest;
+import com.honeybadgersoftware.productservice.product.model.productexistence.ProductExistenceResponse;
+import com.honeybadgersoftware.productservice.product.model.synchronize.SynchronizeProductsRequest;
 import com.honeybadgersoftware.productservice.product.service.ProductService;
 import com.honeybadgersoftware.productservice.utils.pagination.ProductPage;
 import lombok.RequiredArgsConstructor;

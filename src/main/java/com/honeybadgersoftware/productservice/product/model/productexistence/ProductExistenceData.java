@@ -1,4 +1,4 @@
-package com.honeybadgersoftware.productservice.product.model.dto;
+package com.honeybadgersoftware.productservice.product.model.productexistence;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

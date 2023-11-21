@@ -1,4 +1,4 @@
-package com.honeybadgersoftware.productservice.product.model.dto;
+package com.honeybadgersoftware.productservice.product.model.synchronize;
 
 import lombok.Data;
 

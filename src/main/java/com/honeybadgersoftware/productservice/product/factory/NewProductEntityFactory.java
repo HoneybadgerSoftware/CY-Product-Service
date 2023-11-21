@@ -1,6 +1,6 @@
 package com.honeybadgersoftware.productservice.product.factory;
 
-import com.honeybadgersoftware.productservice.product.model.NewProductUpdateData;
+import com.honeybadgersoftware.productservice.product.model.productupdate.NewProductUpdateData;
 import com.honeybadgersoftware.productservice.product.model.entity.ProductEntity;
 import com.honeybadgersoftware.productservice.utils.factory.ManyToOneFactory;
 import org.springframework.stereotype.Component;

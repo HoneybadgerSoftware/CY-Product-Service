@@ -2,8 +2,8 @@ package com.honeybadgersoftware.productservice.product.factory.configuration;
 
 import com.honeybadgersoftware.productservice.product.factory.NewProductEntityFactory;
 import com.honeybadgersoftware.productservice.product.factory.UpdatedProductEntityFactory;
-import com.honeybadgersoftware.productservice.product.model.NewProductUpdateData;
-import com.honeybadgersoftware.productservice.product.model.ProductAveragePriceData;
+import com.honeybadgersoftware.productservice.product.model.productupdate.NewProductUpdateData;
+import com.honeybadgersoftware.productservice.product.model.productupdate.ProductAveragePriceData;
 import com.honeybadgersoftware.productservice.utils.factory.ManyToOneFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

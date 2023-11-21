@@ -29,7 +29,18 @@ abstract class BaseIntegrationTest extends Specification {
     PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer("postgres:15.3")
 
     def setup() {
+        postgreSQLContainer.start()
         addressToUseForTests = 'http://localhost:' + port
     }
 
+    def cleanup(){
+        postgreSQLContainer.stop()
+    }
+
+    protected void restartContainer() {
+        if (postgreSQLContainer.isRunning()) {
+            postgreSQLContainer.stop()
+        }
+        postgreSQLContainer.start()
+    }
 }

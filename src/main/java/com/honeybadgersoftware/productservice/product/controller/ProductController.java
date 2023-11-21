@@ -1,11 +1,11 @@
 package com.honeybadgersoftware.productservice.product.controller;
 
 import com.honeybadgersoftware.productservice.product.facade.ProductFacade;
-import com.honeybadgersoftware.productservice.product.model.UpdateNewProductsRequest;
-import com.honeybadgersoftware.productservice.product.model.UpdateProductsAveragePriceRequest;
+import com.honeybadgersoftware.productservice.product.model.productupdate.NewProductsUpdateRequest;
+import com.honeybadgersoftware.productservice.product.model.productupdate.UpdateProductsAveragePriceRequest;
 import com.honeybadgersoftware.productservice.product.model.dto.ProductDto;
-import com.honeybadgersoftware.productservice.product.model.dto.ProductExistenceResponse;
-import com.honeybadgersoftware.productservice.product.model.dto.SynchronizeProductsRequest;
+import com.honeybadgersoftware.productservice.product.model.productexistence.ProductExistenceResponse;
+import com.honeybadgersoftware.productservice.product.model.synchronize.SynchronizeProductsRequest;
 import com.honeybadgersoftware.productservice.utils.pagination.ProductPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +18,7 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/product")
+@RequestMapping("/products")
 public class ProductController {
 
     private final ProductFacade productFacade;
@@ -64,7 +64,7 @@ public class ProductController {
 
     @PutMapping("/synchronize/newProducts")
     ResponseEntity<Void> updateNewProducts(
-            @RequestBody UpdateNewProductsRequest checkProductsExistenceRequest) {
+            @RequestBody NewProductsUpdateRequest checkProductsExistenceRequest) {
         productFacade.updateNewProducts(checkProductsExistenceRequest.getData());
         return ResponseEntity.ok().build();
     }
