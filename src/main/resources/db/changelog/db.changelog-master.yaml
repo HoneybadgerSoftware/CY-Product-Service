@@ -4,3 +4,8 @@ databaseChangeLog:
       author: jakub.kolacz
       file: changeset/0001_create_product_table.yml
       relativeToChangelogFile: true
+  - include:
+      id: 2
+      author: jakub.kolacz
+      file: changeset/0002_add_unique_name_manufacturer_constraint.yaml
+      relativeToChangelogFile: true
