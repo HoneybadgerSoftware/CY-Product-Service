@@ -114,7 +114,7 @@ public class ProductServiceImpl implements ProductService {
                 .flatMap(productEntity -> productData.stream()
                         .filter(newData -> newData.getId().equals(productEntity.getId()))
                         .map(newData -> factory.map(productEntity, newData))
-                ).collect(Collectors.toList());//NOSONAR
+                ).collect(Collectors.toList()); //NOSONAR
 
         productRepository.saveAll(updatedEntities);
     }
