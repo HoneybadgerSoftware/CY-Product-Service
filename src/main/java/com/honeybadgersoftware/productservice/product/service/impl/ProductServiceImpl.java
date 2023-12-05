@@ -140,7 +140,7 @@ public class ProductServiceImpl implements ProductService {
         return pageBuilder(productRepository.findAllById(productIds));
     }
 
-    private Page<ProductDto> pageBuilder(List<ProductEntity> entities){
+    private Page<ProductDto> pageBuilder(List<ProductEntity> entities) {
         return entities.isEmpty() ?
                 Page.<ProductDto>builder()
                         .content(Collections.emptyList())
