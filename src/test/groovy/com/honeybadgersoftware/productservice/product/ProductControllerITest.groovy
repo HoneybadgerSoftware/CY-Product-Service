@@ -1,6 +1,8 @@
 package com.honeybadgersoftware.productservice.product
 
 import com.honeybadgersoftware.productservice.base.BaseIntegrationTest
+import com.honeybadgersoftware.productservice.data.SimplePage
+import com.honeybadgersoftware.productservice.product.model.dto.GetProductsFromSpecificShopRequest
 import com.honeybadgersoftware.productservice.product.model.dto.ProductDto
 import com.honeybadgersoftware.productservice.product.model.productexistence.ProductExistenceResponse
 import com.honeybadgersoftware.productservice.product.model.productupdate.NewProductUpdateData
@@ -9,16 +11,13 @@ import com.honeybadgersoftware.productservice.product.model.productupdate.Produc
 import com.honeybadgersoftware.productservice.product.model.productupdate.UpdateProductsAveragePriceRequest
 import com.honeybadgersoftware.productservice.product.model.synchronize.SimplifiedProductData
 import com.honeybadgersoftware.productservice.product.model.synchronize.SynchronizeProductsRequest
-import com.honeybadgersoftware.productservice.utils.pagination.ProductPage
+import com.honeybadgersoftware.productservice.utils.pagination.Page
 import org.springframework.core.ParameterizedTypeReference
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
+import org.springframework.http.*
 
 import java.math.RoundingMode
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*
 
 class ProductControllerITest extends BaseIntegrationTest {
 
@@ -49,11 +48,11 @@ class ProductControllerITest extends BaseIntegrationTest {
     def "getProducts returns 200 OK with a page of products"() {
 
         when:
-        ResponseEntity<ProductPage<ProductDto>> response = restTemplate.exchange(
+        ResponseEntity<Page<ProductDto>> response = restTemplate.exchange(
                 addressToUseForTests + "/products",
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<ProductPage<ProductDto>>() {}
+                new ParameterizedTypeReference<Page<ProductDto>>() {}
         )
 
         then:
@@ -333,4 +332,39 @@ class ProductControllerITest extends BaseIntegrationTest {
             averagePrice == new BigDecimal(19.99).setScale(2, RoundingMode.HALF_UP)
         }
     }
+
+
+    def "getProduct return random product for location "() {
+        given:
+        def shopIds = [1L, 2L]
+        def request = new GetProductsFromSpecificShopRequest(shopIds)
+
+        and:
+        wireMock.stubFor(post(urlEqualTo("/availability/check/random"))
+                .withRequestBody(equalToJson(SimplePage.jsonRequest))
+                .willReturn(aResponse()
+                        .withBody(SimplePage.jsonResponse)
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")))
+
+        and:
+        HttpHeaders headers = new HttpHeaders()
+        headers.setContentType(MediaType.APPLICATION_JSON)
+        HttpEntity<GetProductsFromSpecificShopRequest> requestEntity = new HttpEntity<>(request, headers)
+
+
+        when:
+        ResponseEntity<Page<ProductDto>> response =
+                restTemplate.exchange(
+                        addressToUseForTests + "/products/random",
+                        HttpMethod.GET,
+                        requestEntity,
+                        Page<ProductDto>.class)
+
+        then:
+        response.statusCode == HttpStatus.OK
+        println(response)
+
+    }
+
 }

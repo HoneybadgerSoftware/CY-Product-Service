@@ -1,12 +1,14 @@
 package com.honeybadgersoftware.productservice.product.controller;
 
 import com.honeybadgersoftware.productservice.product.facade.ProductFacade;
+import com.honeybadgersoftware.productservice.product.model.dto.GetProductsFromSpecificShopRequest;
 import com.honeybadgersoftware.productservice.product.model.productupdate.NewProductsUpdateRequest;
 import com.honeybadgersoftware.productservice.product.model.productupdate.UpdateProductsAveragePriceRequest;
 import com.honeybadgersoftware.productservice.product.model.dto.ProductDto;
 import com.honeybadgersoftware.productservice.product.model.productexistence.ProductExistenceResponse;
 import com.honeybadgersoftware.productservice.product.model.synchronize.SynchronizeProductsRequest;
-import com.honeybadgersoftware.productservice.utils.pagination.ProductPage;
+import com.honeybadgersoftware.productservice.utils.pagination.Page;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -30,9 +32,16 @@ public class ProductController {
     }
 
     @GetMapping
-    ResponseEntity<ProductPage<ProductDto>> getProducts(
+    ResponseEntity<Page<ProductDto>> getProducts(
             @PageableDefault(size = 50, page = 0) Pageable pageable) {
         return ResponseEntity.ok(productFacade.getProducts(pageable));
+    }
+
+    @GetMapping("/random")
+    ResponseEntity<Page<ProductDto>> getProductsFromSpecificShops(
+            @RequestBody @Valid GetProductsFromSpecificShopRequest requestedShops
+            ) {
+        return ResponseEntity.ok(productFacade.getProductsFromSpecificShops(requestedShops));
     }
 
     @PostMapping

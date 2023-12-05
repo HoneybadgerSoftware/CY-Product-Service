@@ -1,7 +1,7 @@
 package com.honeybadgersoftware.productservice.product.factory.configuration;
 
-import com.honeybadgersoftware.productservice.product.factory.NewProductEntityFactory;
-import com.honeybadgersoftware.productservice.product.factory.UpdatedProductEntityFactory;
+import com.honeybadgersoftware.productservice.product.factory.many.NewProductEntityFactory;
+import com.honeybadgersoftware.productservice.product.factory.many.UpdatedProductEntityFactory;
 import com.honeybadgersoftware.productservice.product.model.productupdate.NewProductUpdateData;
 import com.honeybadgersoftware.productservice.product.model.productupdate.ProductAveragePriceData;
 import com.honeybadgersoftware.productservice.utils.factory.ManyToOneFactory;
@@ -21,8 +21,7 @@ public class FactoryConfiguration {
 
     @Bean
     @DependsOn(value = {"newProductEntityFactory", "updatedProductEntityFactory"})
-    public Map<Class<?>, ManyToOneFactory<?, ?>> twoToOneFactoryMap() {
-        System.out.println("Factory map");
+    public Map<Class<?>, ManyToOneFactory<?, ?>> twoToOneFactoryMap() { //NOSONAR
         return Map.of(
                 NewProductUpdateData.class, newProductEntityFactory,
                 ProductAveragePriceData.class, updatedProductEntityFactory);

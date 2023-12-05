@@ -1,5 +1,6 @@
 package com.honeybadgersoftware.productservice.base
 
+import com.github.tomakehurst.wiremock.WireMockServer
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
@@ -28,13 +29,18 @@ abstract class BaseIntegrationTest extends Specification {
     @Container
     PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer("postgres:15.3")
 
+    WireMockServer wireMock = new WireMockServer(8081)
+
+
     def setup() {
         postgreSQLContainer.start()
         addressToUseForTests = 'http://localhost:' + port
+        wireMock.start()
     }
 
     def cleanup(){
         postgreSQLContainer.stop()
+        wireMock.stop()
     }
 
     protected void restartContainer() {
