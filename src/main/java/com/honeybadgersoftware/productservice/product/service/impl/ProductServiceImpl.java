@@ -1,18 +1,19 @@
 package com.honeybadgersoftware.productservice.product.service.impl;
 
 import com.honeybadgersoftware.productservice.product.factory.context.FactoryContext;
-import com.honeybadgersoftware.productservice.product.model.productupdate.NewProductUpdateData;
-import com.honeybadgersoftware.productservice.product.model.productupdate.ProductAveragePriceData;
+import com.honeybadgersoftware.productservice.product.factory.one.ProductEntityToDtoFactory;
 import com.honeybadgersoftware.productservice.product.model.dto.ProductDto;
+import com.honeybadgersoftware.productservice.product.model.entity.ProductEntity;
 import com.honeybadgersoftware.productservice.product.model.productexistence.ProductExistenceData;
 import com.honeybadgersoftware.productservice.product.model.productexistence.ProductExistenceResponse;
+import com.honeybadgersoftware.productservice.product.model.productupdate.NewProductUpdateData;
+import com.honeybadgersoftware.productservice.product.model.productupdate.ProductAveragePriceData;
 import com.honeybadgersoftware.productservice.product.model.synchronize.SimplifiedProductData;
-import com.honeybadgersoftware.productservice.product.model.entity.ProductEntity;
 import com.honeybadgersoftware.productservice.product.repository.ProductRepository;
 import com.honeybadgersoftware.productservice.product.service.ProductService;
 import com.honeybadgersoftware.productservice.utils.factory.ManyToOneFactory;
 import com.honeybadgersoftware.productservice.utils.mapper.ProductMapper;
-import com.honeybadgersoftware.productservice.utils.pagination.ProductPage;
+import com.honeybadgersoftware.productservice.utils.pagination.Page;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,6 +33,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
+    private final ProductEntityToDtoFactory productEntityToDtoFactory;
     private final FactoryContext twoToFactoryContext;
 
     @Override
@@ -40,16 +43,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductPage<ProductDto> findAll(Pageable pageable) {
+    public Page<ProductDto> findAll(Pageable pageable) {
         org.springframework.data.domain.Page<ProductEntity> products = productRepository.findAll(pageable);
-        return new ProductPage<>(
-                products.stream().map(productMapper::toDto).toList(),
+        return new Page<>(
+                productEntityToDtoFactory.map(products.toList()),
                 products.getPageable().getPageSize(),
                 products.getPageable().getPageNumber(),
                 products.getTotalPages()
-
         );
-
     }
 
     @Override
@@ -113,7 +114,7 @@ public class ProductServiceImpl implements ProductService {
                 .flatMap(productEntity -> productData.stream()
                         .filter(newData -> newData.getId().equals(productEntity.getId()))
                         .map(newData -> factory.map(productEntity, newData))
-                ).collect(Collectors.toList());
+                ).collect(Collectors.toList()); //NOSONAR
 
         productRepository.saveAll(updatedEntities);
     }
@@ -133,8 +134,23 @@ public class ProductServiceImpl implements ProductService {
         });
     }
 
+
+    @Override
+    public Page<ProductDto> getRandomProductsFromSpecificShops(List<Long> productIds) {
+        return pageBuilder(productRepository.findAllById(productIds));
+    }
+
+    private Page<ProductDto> pageBuilder(List<ProductEntity> entities) {
+        return entities.isEmpty() ?
+                Page.<ProductDto>builder()
+                        .content(Collections.emptyList())
+                        .build() : Page.<ProductDto>builder()
+                .content(productEntityToDtoFactory.map(entities))
+                .build();
+    }
+
     private List<Long> getProductIds(List<NewProductUpdateData> productData) {
-        return productData.stream().map(NewProductUpdateData::getId).collect(Collectors.toList());
+        return productData.stream().map(NewProductUpdateData::getId).toList();
     }
 
     private ProductExistenceData buildNewProductExistenceData(ProductEntity newProduct) {

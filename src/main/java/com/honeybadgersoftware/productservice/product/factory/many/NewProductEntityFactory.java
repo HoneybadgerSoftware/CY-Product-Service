@@ -1,4 +1,4 @@
-package com.honeybadgersoftware.productservice.product.factory;
+package com.honeybadgersoftware.productservice.product.factory.many;
 
 import com.honeybadgersoftware.productservice.product.model.productupdate.NewProductUpdateData;
 import com.honeybadgersoftware.productservice.product.model.entity.ProductEntity;

@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductPage<T> {
+public class Page<T> {
     private List<T> content;
     private int offset;
     private int limit;
@@ -23,7 +23,7 @@ public class ProductPage<T> {
     private boolean first;
     private int numberOfElements;
 
-    public ProductPage(List<T> content, int size, int pageNumber, int totalPages) {
+    public Page(List<T> content, int size, int pageNumber, int totalPages) {
         this.content = content;
         this.number = pageNumber;
         this.size = size;
