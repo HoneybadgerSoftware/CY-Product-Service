@@ -156,7 +156,7 @@ public class ProductServiceImpl implements ProductService {
     private ProductExistenceData buildNewProductExistenceData(ProductEntity newProduct) {
         return ProductExistenceData.builder()
                 .id(newProduct.getId())
-                .existedInDb(false)
+                .existsInDb(false)
                 .name(newProduct.getName())
                 .manufacturer(newProduct.getManufacturer())
                 .build();
@@ -167,7 +167,7 @@ public class ProductServiceImpl implements ProductService {
             SimplifiedProductData productData) {
         return ProductExistenceData.builder()
                 .id(id)
-                .existedInDb(true)
+                .existsInDb(true)
                 .name(productData.getProductName())
                 .manufacturer(productData.getManufacturer())
                 .build();

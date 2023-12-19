@@ -3,6 +3,7 @@ package com.honeybadgersoftware.productservice.product.controller;
 import com.honeybadgersoftware.productservice.product.facade.ProductFacade;
 import com.honeybadgersoftware.productservice.product.model.dto.GetProductsFromSpecificShopRequest;
 import com.honeybadgersoftware.productservice.product.model.productupdate.NewProductsUpdateRequest;
+import com.honeybadgersoftware.productservice.product.model.productupdate.ProductAveragePriceData;
 import com.honeybadgersoftware.productservice.product.model.productupdate.UpdateProductsAveragePriceRequest;
 import com.honeybadgersoftware.productservice.product.model.dto.ProductDto;
 import com.honeybadgersoftware.productservice.product.model.productexistence.ProductExistenceResponse;
@@ -10,14 +11,17 @@ import com.honeybadgersoftware.productservice.product.model.synchronize.Synchron
 import com.honeybadgersoftware.productservice.utils.pagination.Page;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/products")
@@ -68,7 +72,9 @@ public class ProductController {
 
     @PostMapping("/synchronize/check")
     ResponseEntity<ProductExistenceResponse> preSynchronizationCheck(@RequestBody SynchronizeProductsRequest synchronizeProductsRequest) {
-        return ResponseEntity.ok(productFacade.preSynchronizationCheck(synchronizeProductsRequest));
+        ProductExistenceResponse productExistenceResponse = productFacade.preSynchronizationCheck(synchronizeProductsRequest);
+        System.out.println(productExistenceResponse);
+        return ResponseEntity.ok(productExistenceResponse);
     }
 
     @PutMapping("/synchronize/newProducts")
@@ -82,7 +88,15 @@ public class ProductController {
     @PutMapping("/synchronize/existingProducts")
     ResponseEntity<Void> updateExistingProductsAveragePrice(
             @RequestBody UpdateProductsAveragePriceRequest productsAveragePriceRequest) {
-        productFacade.updateProductsAveragePrice(productsAveragePriceRequest.getData());
+        System.out.println(productsAveragePriceRequest);
+
+        List<ProductAveragePriceData> data = productsAveragePriceRequest.getData();
+
+        if(data.isEmpty()){
+            log.info("Product average price data is empty, skipping");
+            ResponseEntity.ok().build();
+        }
+        productFacade.updateProductsAveragePrice(data);
         return ResponseEntity.ok().build();
     }
 
