@@ -1,0 +1,46 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0001
+      author: jakub.kolacz
+      changes:
+        - createTable:
+            tableName: products
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: manufacturer
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: VARCHAR(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: average_price
+                  type: Numeric(10,2)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: image_url
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+        - createSequence:
+            sequenceName: product_sequence
+            incrementBy: 100
+            startValue: 1
+            cacheSize: 100
+            cycle: true
