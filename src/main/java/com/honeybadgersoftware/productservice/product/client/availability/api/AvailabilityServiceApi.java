@@ -3,7 +3,6 @@ package com.honeybadgersoftware.productservice.product.client.availability.api;
 
 import com.honeybadgersoftware.productservice.product.client.availability.model.ProductIdsResponse;
 import com.honeybadgersoftware.productservice.product.model.dto.GetProductsFromSpecificShopRequest;
-import feign.Headers;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

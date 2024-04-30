@@ -2,11 +2,11 @@ package com.honeybadgersoftware.productservice.product.controller;
 
 import com.honeybadgersoftware.productservice.product.facade.ProductFacade;
 import com.honeybadgersoftware.productservice.product.model.dto.GetProductsFromSpecificShopRequest;
+import com.honeybadgersoftware.productservice.product.model.dto.ProductDto;
+import com.honeybadgersoftware.productservice.product.model.productexistence.ProductExistenceResponse;
 import com.honeybadgersoftware.productservice.product.model.productupdate.NewProductsUpdateRequest;
 import com.honeybadgersoftware.productservice.product.model.productupdate.ProductAveragePriceData;
 import com.honeybadgersoftware.productservice.product.model.productupdate.UpdateProductsAveragePriceRequest;
-import com.honeybadgersoftware.productservice.product.model.dto.ProductDto;
-import com.honeybadgersoftware.productservice.product.model.productexistence.ProductExistenceResponse;
 import com.honeybadgersoftware.productservice.product.model.synchronize.SynchronizeProductsRequest;
 import com.honeybadgersoftware.productservice.utils.pagination.Page;
 import jakarta.validation.Valid;
@@ -93,7 +93,7 @@ public class ProductController {
 
         List<ProductAveragePriceData> data = productsAveragePriceRequest.getData();
 
-        if(data.isEmpty()){
+        if (data.isEmpty()) {
             log.info("Product average price data is empty, skipping");
             return ResponseEntity.ok().build();
         }
