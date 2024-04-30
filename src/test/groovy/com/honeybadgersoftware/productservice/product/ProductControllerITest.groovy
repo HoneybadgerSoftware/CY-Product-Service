@@ -239,7 +239,7 @@ class ProductControllerITest extends BaseIntegrationTest {
 
         then: "the response indicates that the product did not exist and was added"
         response.statusCode == HttpStatus.OK
-        with(response.body.productsExistenceData) {
+        with(response.body.data) {
             with(it.get(0)) {
                 it.name == newProductData.productName
                 it.manufacturer == newProductData.manufacturer
