@@ -140,6 +140,18 @@ public class ProductServiceImpl implements ProductService {
         return pageBuilder(productRepository.findAllById(productIds));
     }
 
+    @Override
+    public List<ProductDto> findProductByNameOrManufacturer(String name, String manufacturer) {
+
+        List<ProductEntity> allProducts = productRepository.findAllByNameOrManufacturer(name, manufacturer);
+
+        if (allProducts.isEmpty()){
+            return Collections.emptyList();
+        }
+
+        return allProducts.stream().map(productMapper::toDto).toList();
+    }
+
     private Page<ProductDto> pageBuilder(List<ProductEntity> entities) {
         return entities.isEmpty() ?
                 Page.<ProductDto>builder()

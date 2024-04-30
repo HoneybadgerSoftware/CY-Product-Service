@@ -41,12 +41,20 @@ public class ProductController {
         return ResponseEntity.ok(productFacade.getProducts(pageable));
     }
 
-
-    //popraw te metode, tak aby komunikowała sie z product availability a nie pobierała dane z bazy danych
     @GetMapping("/random")
     ResponseEntity<Page<ProductDto>> getProductsFromSpecificShops(
             @RequestBody @Valid GetProductsFromSpecificShopRequest requestedShops) {
         return ResponseEntity.ok(productFacade.getProductsFromSpecificShops(requestedShops));
+    }
+
+    @GetMapping("/display")
+    ResponseEntity<List<ProductDto>> getProductByNameOrManufacturer(
+            @RequestParam(value = "name", required = false) Optional<String> name,
+            @RequestParam(value = "manufacturer", required = false) Optional<String> manufacturer) {
+        List<ProductDto> products = productFacade.findProductsByNameOrManufacturer(name, manufacturer);
+        return products.isEmpty() ?
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body(products)
+                : ResponseEntity.ok(products);
     }
 
     @PostMapping
@@ -74,7 +82,6 @@ public class ProductController {
     @PostMapping("/synchronize/check")
     ResponseEntity<ProductExistenceResponse> preSynchronizationCheck(@RequestBody SynchronizeProductsRequest synchronizeProductsRequest) {
         ProductExistenceResponse productExistenceResponse = productFacade.preSynchronizationCheck(synchronizeProductsRequest);
-        System.out.println(productExistenceResponse);
         return ResponseEntity.ok(productExistenceResponse);
     }
 

@@ -21,6 +21,8 @@ public interface ProductService {
 
     Optional<ProductDto> updateProduct(Long id, ProductDto productDto);
 
+    List<ProductDto> findProductByNameOrManufacturer(String name, String manufacturer);
+
     int deleteById(Long id);
 
     ProductExistenceResponse checkProductsInDb(List<SimplifiedProductData> simplifiedProductData);

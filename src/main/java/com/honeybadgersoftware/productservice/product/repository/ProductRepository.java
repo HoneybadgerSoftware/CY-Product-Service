@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -19,4 +20,5 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
     @Query(value = "SELECT e.id FROM ProductEntity e WHERE e.name = :name AND e.manufacturer = :manufacturer")
     Optional<Long> findIdByNameAndManufacturer(String name, String manufacturer);
 
+    List<ProductEntity> findAllByNameOrManufacturer(String name, String manufacturer);
 }
