@@ -1,10 +1,7 @@
 package com.honeybadgersoftware.productservice.product.model.productexistence;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -12,7 +9,8 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class ProductExistenceResponse {
 
-    private List<ProductExistenceData> productsExistenceData;
+    private List<ProductExistenceData> data;
 }

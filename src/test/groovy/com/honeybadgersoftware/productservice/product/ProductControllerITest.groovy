@@ -243,12 +243,12 @@ class ProductControllerITest extends BaseIntegrationTest {
             with(it.get(0)) {
                 it.name == newProductData.productName
                 it.manufacturer == newProductData.manufacturer
-                it.existedInDb == false
+                it.existsInDb == false
             }
             with(it.get(1)) {
                 it.name == existingProductData.productName
                 it.manufacturer == existingProductData.manufacturer
-                it.existedInDb == true
+                it.existsInDb == true
             }
         }
     }
