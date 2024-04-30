@@ -366,5 +366,4 @@ class ProductControllerITest extends BaseIntegrationTest {
         println(response)
 
     }
-
 }
