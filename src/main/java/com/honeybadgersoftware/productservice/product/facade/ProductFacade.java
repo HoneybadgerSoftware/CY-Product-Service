@@ -71,7 +71,7 @@ public class ProductFacade {
         return productService.getRandomProductsFromSpecificShops(productIds);
     }
 
-    public List<ProductDto> findProductsByNameOrManufacturer(Optional<String> name, Optional<String> manufacturer){
+    public List<ProductDto> findProductsByNameOrManufacturer(Optional<String> name, Optional<String> manufacturer) {
         return productService.findProductByNameOrManufacturer(name.orElse(null), manufacturer.orElse(null));
     }
 }

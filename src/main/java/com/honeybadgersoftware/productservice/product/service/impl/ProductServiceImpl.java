@@ -145,7 +145,7 @@ public class ProductServiceImpl implements ProductService {
 
         List<ProductEntity> allProducts = productRepository.findAllByNameOrManufacturer(name, manufacturer);
 
-        if (allProducts.isEmpty()){
+        if (allProducts.isEmpty()) {
             return Collections.emptyList();
         }
 
